@@ -23,12 +23,16 @@ export type StoryCategory =
   | "technology"
   | "other";
 
+export type StoryRegion = "europe" | "row";
+
 export interface AnalysedStory extends Story {
   hash: string;
   score: number;
   category: StoryCategory;
+  region: StoryRegion;
   summary: string;
   players: string[];
+  auroraRelevance?: string;
 }
 
 export interface RevenueDataPoint {
