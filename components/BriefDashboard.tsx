@@ -13,6 +13,7 @@ const EUROPE_TABS: { key: StoryCategory | "all"; label: string }[] = [
 ];
 
 const ROW_TAB_KEY = "row";
+const DATA_CENTRE_TAB_KEY = "datacentre";
 
 interface BriefDashboardProps {
   stories: AnalysedStory[];
@@ -26,6 +27,7 @@ export default function BriefDashboard({
   activeTab = "all",
 }: BriefDashboardProps) {
   const isRowTab = activeTab === ROW_TAB_KEY;
+  const isDataCentreTab = activeTab === DATA_CENTRE_TAB_KEY;
   const currentYear = new Date().getFullYear();
 
   const relevant = stories.filter(
@@ -34,9 +36,11 @@ export default function BriefDashboard({
   const filtered = (
     isRowTab
       ? relevant.filter((story) => story.region === "row" && story.score >= HIGH_RELEVANCE_THRESHOLD)
-      : relevant.filter(
-          (story) => story.region === "europe" && (activeTab === "all" || story.category === activeTab)
-        )
+      : isDataCentreTab
+        ? relevant.filter((story) => story.dataCentre)
+        : relevant.filter(
+            (story) => story.region === "europe" && (activeTab === "all" || story.category === activeTab)
+          )
   ).sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime());
 
   return (
@@ -81,6 +85,16 @@ export default function BriefDashboard({
             }`}
           >
             Rest of World (High Relevance)
+          </a>
+          <a
+            href={`/?tab=${DATA_CENTRE_TAB_KEY}`}
+            className={`rounded-full px-3 py-1 text-sm transition-colors ${
+              isDataCentreTab
+                ? "bg-sky-400 font-medium text-[#0a0c10]"
+                : "bg-slate-900 text-slate-300 hover:bg-slate-800"
+            }`}
+          >
+            Data Centres
           </a>
         </nav>
 

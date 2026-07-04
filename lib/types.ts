@@ -33,6 +33,7 @@ export interface AnalysedStory extends Story {
   summary: string;
   players: string[];
   auroraRelevance?: string;
+  dataCentre: boolean;
 }
 
 export interface RevenueDataPoint {
