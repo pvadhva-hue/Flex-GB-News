@@ -95,10 +95,18 @@ fetch('/api/send-email', { method: 'POST' }).then(r => r.json()).then(console.lo
 
 ### 6. Cron job
 
-`vercel.json` schedules `/api/run-brief` for 06:30 UTC on weekdays. Vercel
-Cron Jobs trigger via a `GET` request, which the route supports (alongside
-`POST`, used for manual testing above). No further setup needed — it goes
-live as soon as the project is deployed with `vercel.json` present.
+The brief runs every day (including weekends) at 6:30am **UK local time**.
+Vercel Cron has no timezone/DST awareness — it only runs on fixed UTC
+schedules — so `vercel.json` defines two daily UTC crons (`30 5 * * *` and
+`30 6 * * *`, covering BST and GMT respectively). The route itself checks the
+real UK local time on every trigger and only actually runs the pipeline when
+it's genuinely 06:30 UK time; the other trigger each day is a cheap no-op.
+This self-adjusts across the BST/GMT boundary with no manual changes needed.
+
+Vercel Cron Jobs trigger via a `GET` request, which is what carries this
+time-guard. `POST` (used for manual testing above) always runs immediately
+regardless of time of day. No further setup needed — it goes live as soon as
+the project is deployed with `vercel.json` present.
 
 ## Known limitations
 

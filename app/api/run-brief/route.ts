@@ -6,9 +6,23 @@ import { sendDailyBrief } from "@/lib/mailer";
 import { addStories } from "@/lib/store";
 import type { ApiResponse, RunBriefResult } from "@/lib/types";
 
-// Vercel Cron Jobs trigger this route with a GET request, while manual/local
-// testing has been done via POST - both are supported and run the identical
-// pipeline.
+// vercel.json schedules this route via two daily UTC cron entries (one that
+// lands at 06:30 UK time during BST, one during GMT) since Vercel Cron has no
+// timezone/DST awareness. Whichever entry doesn't correspond to genuine 06:30
+// UK local time on a given day is a no-op via this guard, so the pipeline
+// only actually runs once a day regardless of the season.
+function isSixThirtyUkTime(): boolean {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: false,
+  }).formatToParts(new Date());
+  const hour = Number(parts.find((part) => part.type === "hour")?.value);
+  const minute = Number(parts.find((part) => part.type === "minute")?.value);
+  return hour === 6 && minute === 30;
+}
+
 async function runBrief(): Promise<NextResponse<ApiResponse<RunBriefResult>>> {
   try {
     const fetched = await fetchAllStories();
@@ -44,5 +58,18 @@ async function runBrief(): Promise<NextResponse<ApiResponse<RunBriefResult>>> {
   }
 }
 
-export const GET = runBrief;
+// Vercel Cron Jobs trigger via GET - only run the pipeline if it's genuinely
+// 06:30 UK time right now (see isSixThirtyUkTime above).
+export async function GET(): Promise<NextResponse<ApiResponse<RunBriefResult>>> {
+  if (!isSixThirtyUkTime()) {
+    return NextResponse.json({
+      success: true,
+      data: { fetched: 0, newStories: 0, analysedStories: [], skipped: true },
+    });
+  }
+  return runBrief();
+}
+
+// POST always runs immediately, regardless of time of day - used for manual
+// testing.
 export const POST = runBrief;
