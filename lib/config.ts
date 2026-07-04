@@ -17,6 +17,9 @@ export const SECONDARY_FEEDS: FeedSource[] = [
   { url: "https://www.elgarmiddleton.com/feed/", label: "Elgar Middleton", weight: 2 },
   { url: "https://mnacommunity.com/feed/", label: "M&A Community", weight: 2 },
   { url: "https://aercommercial.podbean.com/feed.xml", label: "AER Commercial podcast", weight: 2 },
+  { url: "https://www.theguardian.com/environment/energy/rss", label: "The Guardian Energy", weight: 2 },
+  { url: "https://www.ft.com/companies/energy?format=rss", label: "Financial Times Energy", weight: 2 },
+  { url: "https://www.energylivenews.com/feed", label: "Energy Live News", weight: 2 },
 ];
 
 export const ALL_FEEDS: FeedSource[] = [...PRIMARY_FEEDS, ...SECONDARY_FEEDS];

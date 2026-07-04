@@ -41,6 +41,11 @@ export default function StoryCard({ story }: { story: AnalysedStory }) {
             <span className="rounded-full bg-slate-900 px-2 py-0.5 text-xs uppercase tracking-wide text-slate-400">
               {REGION_LABELS[story.region]}
             </span>
+            {story.dataCentre && (
+              <span className="rounded-full bg-slate-900 px-2 py-0.5 text-xs uppercase tracking-wide text-sky-400">
+                Data Centre
+              </span>
+            )}
           </div>
           <span className="text-xs text-slate-500">
             {formatDate(story.pubDate)} · {story.source} · score {story.score}/10

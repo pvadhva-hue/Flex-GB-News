@@ -31,6 +31,7 @@ interface RawAnalysis {
   summary: string;
   players: string[];
   auroraRelevance?: string;
+  dataCentre?: boolean;
 }
 
 function chunk<T>(items: T[], size: number): T[][] {
@@ -62,12 +63,13 @@ For each article below:
 4. Write a one-sentence summary of what happened.
 5. List any tracked players mentioned.
 6. ONLY if the relevance score is ${HIGH_RELEVANCE_THRESHOLD} or higher, also write a one-to-two sentence "auroraRelevance" explaining specifically why this matters to an Aurora Energy Research advisor tracking GB/European BESS transactions and offtake structures (e.g. precedent for deal structuring, pricing signal, regulatory read-across, competitor/client activity). Omit this field entirely for articles scoring below ${HIGH_RELEVANCE_THRESHOLD}.
+7. Set "dataCentre" to true if the article substantively relates to data centres (e.g. BESS/generation co-location with data centres, hyperscaler power demand or PPAs, data centre grid connections), otherwise false.
 
 Articles:
 ${articles}
 
 Respond with ONLY a JSON array (no markdown, no prose) where each element has this exact shape:
-{"index": number, "score": number, "category": "transaction"|"offtake"|"policy"|"market"|"technology"|"other", "region": "europe"|"row", "summary": string, "players": string[], "auroraRelevance"?: string}`;
+{"index": number, "score": number, "category": "transaction"|"offtake"|"policy"|"market"|"technology"|"other", "region": "europe"|"row", "summary": string, "players": string[], "auroraRelevance"?: string, "dataCentre": boolean}`;
 }
 
 async function analyseBatch(batch: Story[]): Promise<AnalysedStory[]> {
@@ -120,6 +122,7 @@ async function analyseBatch(batch: Story[]): Promise<AnalysedStory[]> {
         item.score >= HIGH_RELEVANCE_THRESHOLD && item.auroraRelevance
           ? item.auroraRelevance
           : undefined,
+      dataCentre: item.dataCentre === true,
     });
   }
 

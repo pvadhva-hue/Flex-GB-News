@@ -9,8 +9,12 @@ export async function getStories(): Promise<AnalysedStory[]> {
   try {
     const stories = await redis.get<AnalysedStory[]>(STORIES_KEY);
     // Defend against stories persisted under an older schema (e.g. before the
-    // "region" field existed) that haven't been re-analysed since.
-    return (stories ?? []).map((story) => ({ ...story, region: story.region ?? "europe" }));
+    // "region"/"dataCentre" fields existed) that haven't been re-analysed since.
+    return (stories ?? []).map((story) => ({
+      ...story,
+      region: story.region ?? "europe",
+      dataCentre: story.dataCentre ?? false,
+    }));
   } catch (error) {
     console.error("[store] Failed to read stories from Redis:", error);
     return [];
