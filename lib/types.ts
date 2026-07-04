@@ -44,13 +44,15 @@ export type ApiResponse<T> =
   | { success: true; data: T }
   | { success: false; error: string };
 
+export interface SendEmailResult {
+  sent: boolean;
+  storiesSent: number;
+}
+
 export interface RunBriefResult {
   fetched: number;
   newStories: number;
   analysedStories: AnalysedStory[];
-}
-
-export interface SendEmailResult {
-  sent: boolean;
-  storiesSent: number;
+  emailResult?: SendEmailResult;
+  emailError?: string;
 }
