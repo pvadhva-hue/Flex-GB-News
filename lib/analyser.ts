@@ -3,6 +3,7 @@ import {
   ANALYSER_BATCH_SIZE,
   CLAUDE_MODEL,
   HIGH_RELEVANCE_THRESHOLD,
+  PRIORITY_TOPICS,
   RELEVANCE_THRESHOLD,
   TRACKED_PLAYERS,
 } from "./config";
@@ -50,6 +51,9 @@ function buildPrompt(batch: Story[]): string {
 
   return `You are analysing news articles for an energy storage advisor at Aurora Energy Research who tracks GB and European battery energy storage (BESS) transactions, offtake structures (tolls, floors, financial swaps), and market/policy/technology developments.
 Track these key players: ${TRACKED_PLAYERS.join(", ")}.
+
+Score these topics especially highly (8+) whenever they appear, even if from a general news roundup rather than a dedicated article:
+${PRIORITY_TOPICS.map((topic) => `- ${topic}`).join("\n")}
 
 For each article below:
 1. Score its relevance to BESS on a 0-10 scale.

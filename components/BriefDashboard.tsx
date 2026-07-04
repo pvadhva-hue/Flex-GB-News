@@ -1,4 +1,4 @@
-import { HIGH_RELEVANCE_THRESHOLD } from "@/lib/config";
+import { HIGH_RELEVANCE_THRESHOLD, RELEVANCE_THRESHOLD } from "@/lib/config";
 import type { AnalysedStory, RevenueDataPoint, StoryCategory } from "@/lib/types";
 import StoryCard from "./StoryCard";
 import RevenueChart from "./RevenueChart";
@@ -27,11 +27,14 @@ export default function BriefDashboard({
 }: BriefDashboardProps) {
   const isRowTab = activeTab === ROW_TAB_KEY;
 
-  const filtered = isRowTab
-    ? stories.filter((story) => story.region === "row" && story.score >= HIGH_RELEVANCE_THRESHOLD)
-    : stories.filter(
-        (story) => story.region === "europe" && (activeTab === "all" || story.category === activeTab)
-      );
+  const relevant = stories.filter((story) => story.score >= RELEVANCE_THRESHOLD);
+  const filtered = (
+    isRowTab
+      ? relevant.filter((story) => story.region === "row" && story.score >= HIGH_RELEVANCE_THRESHOLD)
+      : relevant.filter(
+          (story) => story.region === "europe" && (activeTab === "all" || story.category === activeTab)
+        )
+  ).sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime());
 
   return (
     <main className="min-h-screen bg-[#0a0c10] text-slate-100">
