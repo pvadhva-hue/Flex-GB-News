@@ -1,0 +1,33 @@
+{
+  "name": "bess-brief-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.110.0",
+    "@react-email/components": "^1.0.12",
+    "@upstash/redis": "^1.38.0",
+    "next": "^15.5.20",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-email": "^6.6.6",
+    "resend": "^6.17.1",
+    "rss-parser": "^3.13.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "^15.5.20",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
