@@ -67,7 +67,13 @@ export const RELEVANCE_KEYWORDS: string[] = [
   ...OFFTAKE_KEYWORDS,
 ];
 
-export const RELEVANCE_THRESHOLD = 6;
+export const PRIORITY_TOPICS: string[] = [
+  "long duration energy storage (LDES) cap and floor scheme",
+  "repetitive re-trading in the GB Balancing Mechanism",
+  "grid connection queue reform (e.g. TMO4+, connections reform, queue management)",
+];
+
+export const RELEVANCE_THRESHOLD = 7;
 export const HIGH_RELEVANCE_THRESHOLD = 8;
 export const ANALYSER_BATCH_SIZE = 8;
 export const CLAUDE_MODEL = "claude-sonnet-4-6";
