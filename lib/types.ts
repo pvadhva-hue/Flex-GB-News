@@ -55,4 +55,5 @@ export interface RunBriefResult {
   analysedStories: AnalysedStory[];
   emailResult?: SendEmailResult;
   emailError?: string;
+  skipped?: true;
 }
