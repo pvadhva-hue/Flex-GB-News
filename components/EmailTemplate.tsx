@@ -29,6 +29,22 @@ const storyTitleStyle = { color: "#0a0c10", fontSize: "16px", fontWeight: 600, m
 const storyMetaStyle = { color: "#71717a", fontSize: "12px", margin: "0 0 8px", textTransform: "uppercase" as const, letterSpacing: "0.03em" };
 const storySummaryStyle = { color: "#3f3f46", fontSize: "14px", lineHeight: "20px", margin: "0 0 8px" };
 const storyLinkStyle = { color: "#0f9a87", fontSize: "13px", fontWeight: 600 };
+const auroraRelevanceBoxStyle = {
+  backgroundColor: "#ecfdf9",
+  border: "1px solid #99f0e2",
+  borderRadius: "6px",
+  margin: "8px 0",
+  padding: "10px 14px",
+};
+const auroraRelevanceLabelStyle = {
+  color: "#0f9a87",
+  fontSize: "11px",
+  fontWeight: 700,
+  letterSpacing: "0.03em",
+  margin: "0 0 2px",
+  textTransform: "uppercase" as const,
+};
+const auroraRelevanceTextStyle = { color: "#134e4a", fontSize: "13px", lineHeight: "18px", margin: 0 };
 const footerStyle = { color: "#a1a1aa", fontSize: "12px", margin: "24px 0 0" };
 
 interface EmailTemplateProps {
@@ -56,6 +72,12 @@ export default function EmailTemplate({ stories, weekday, date }: EmailTemplateP
               </Text>
               <Text style={storyTitleStyle}>{story.title}</Text>
               <Text style={storySummaryStyle}>{story.summary}</Text>
+              {story.auroraRelevance && (
+                <Section style={auroraRelevanceBoxStyle}>
+                  <Text style={auroraRelevanceLabelStyle}>Why this matters to Aurora</Text>
+                  <Text style={auroraRelevanceTextStyle}>{story.auroraRelevance}</Text>
+                </Section>
+              )}
               <Link href={story.link} style={storyLinkStyle}>
                 Read full story →
               </Link>
