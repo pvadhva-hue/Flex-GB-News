@@ -29,5 +29,8 @@ export async function fetchAllStories(): Promise<Story[]> {
     Promise.all(ALL_FEEDS.map(fetchFeed)),
     fetchOfgemStories(),
   ]);
-  return [...feedResults.flat(), ...ofgemStories];
+  const currentYear = new Date().getFullYear();
+  return [...feedResults.flat(), ...ofgemStories].filter(
+    (story) => new Date(story.pubDate).getFullYear() === currentYear
+  );
 }

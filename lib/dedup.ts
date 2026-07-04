@@ -35,3 +35,24 @@ export async function filterUnseenStories(stories: Story[]): Promise<Story[]> {
     return stories;
   }
 }
+
+// Same seen-set as filterUnseenStories, but for already-hashed stories (e.g.
+// AnalysedStory) - used by send-email to make sure a story already emailed
+// once is never emailed again, regardless of how many times run-brief has
+// re-analysed it since.
+export async function filterUnsentStories<T extends { hash: string }>(stories: T[]): Promise<T[]> {
+  if (stories.length === 0) return [];
+
+  try {
+    const pipeline = redis.pipeline();
+    for (const story of stories) {
+      pipeline.sismember(SEEN_SET_KEY, story.hash);
+    }
+    const results = await pipeline.exec<(0 | 1)[]>();
+
+    return stories.filter((_, index) => results[index] !== 1);
+  } catch (error) {
+    console.error("[dedup] Failed to check sent-story hashes, treating all as unsent:", error);
+    return stories;
+  }
+}
