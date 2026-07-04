@@ -1,0 +1,170 @@
+# BESS Intelligence Brief — Project Context
+
+## What this project is
+
+A full-stack web application that:
+1. **Hosts a live dashboard** at a public Vercel URL — the BESS weekly intelligence
+   brief as a permanent, always-current website (not a one-off artifact)
+2. **Sends a daily digest email** every weekday morning via Resend, containing only
+   stories published since the last send (no repeats, ever)
+
+The dashboard UI is already designed and working as a React artifact. The task
+is to productionise it: real data pipeline, persistent deduplication, hosted
+frontend, scheduled email delivery.
+
+Owner context: energy storage advisor at Aurora Energy Research, tracking GB +
+European BESS transactions, offtake structures (tolls, floors, financial swaps),
+and key players (Gresham House/GRID, Zenobē, Field Energy, Statera, Fidra, etc.).
+
+---
+
+## Stack decisions — do not change these without asking
+
+| Layer | Choice | Why |
+|---|---|---|
+| Frontend | Next.js 15 App Router (TypeScript) | Vercel-native, RSC for data fetching |
+| Styling | Tailwind CSS | Dashboard uses dark theme utility classes |
+| Hosting | Vercel | Zero-config deploys, Edge cron support |
+| Email | Resend + React Email | Clean API, React component emails |
+| Scheduler | Vercel Cron Jobs | No separate infra needed |
+| Database | Vercel KV (Redis) | Persist seen-story URLs between cron runs; serverless-safe |
+| AI analysis | Anthropic Claude API (`claude-sonnet-4-6`) | Scores + summarises RSS articles |
+| RSS parsing | `rss-parser` npm package | Lightweight, works in Node.js Edge runtime |
+
+---
+
+## Project structure
+
+```
+bess-brief-web/
+├── app/
+│   ├── page.tsx              # Dashboard homepage (the brief)
+│   ├── api/
+│   │   ├── run-brief/        # POST endpoint: fetch → deduplicate → analyse → store
+│   │   └── send-email/       # POST endpoint: render + send via Resend
+│   └── layout.tsx
+├── components/
+│   ├── BriefDashboard.tsx    # Main dashboard shell (tabs, header)
+│   ├── StoryCard.tsx         # Individual story card (expandable)
+│   ├── RevenueChart.tsx      # ME BESS GB revenue sparkline
+│   └── EmailTemplate.tsx     # React Email template for Resend
+├── lib/
+│   ├── fetcher.ts            # RSS feed fetching + article extraction
+│   ├── analyser.ts           # Claude API: score, categorise, summarise
+│   ├── dedup.ts              # Vercel KV seen-story deduplication
+│   ├── config.ts             # All feed URLs, player names, keywords
+│   └── types.ts              # Shared TypeScript types
+├── vercel.json               # Cron job schedule
+├── .env.local                # Local secrets (gitignored)
+└── CLAUDE.md                 # This file
+```
+
+---
+
+## Commands
+
+```bash
+npm run dev          # local dev server (localhost:3000)
+npm run build        # production build — run before every PR
+npm run typecheck    # tsc --noEmit — must pass, no suppressions
+npm run lint         # eslint — must pass clean
+```
+
+Deploy: `git push origin main` → Vercel auto-deploys. Never deploy manually.
+
+---
+
+## Core rules
+
+**Data pipeline:**
+- `dedup.ts` uses Vercel KV to store seen article URL hashes (SHA-256, first 16 chars)
+- A story is marked seen ONLY after a successful Resend delivery — never before
+- Cron runs daily at 06:30 UTC; calls `/api/run-brief` then `/api/send-email` in sequence
+- `vercel.json` cron path: `"crons": [{"path": "/api/run-brief", "schedule": "30 6 * * 1-5"}]`
+
+**Claude API usage:**
+- Always use `claude-sonnet-4-6` — do not upgrade to Opus without asking (cost)
+- Batch articles in groups of 8 per API call to stay under token limits
+- If Claude returns invalid JSON, log the error and skip the batch — never crash
+- Relevance threshold: articles scoring below 6/10 are dropped silently
+
+**Frontend:**
+- Server Components fetch story data from Vercel KV on every request (no client-side fetch)
+- `StoryCard` is the only Client Component (needs `useState` for expand/collapse)
+- Dark theme: background `#0a0c10`, primary accent `#00e5c8` (GB), keep existing palette
+- Do not introduce a component library — Tailwind utility classes only
+- The dashboard must be readable on mobile (single column below 768px)
+
+**Email:**
+- React Email components live in `components/EmailTemplate.tsx`
+- All CSS must be inline (email clients ignore `<style>` tags) — use React Email's `style` prop
+- Subject line format: `BESS Brief — {weekday} {date} · {n} new stories`
+- Never send an email if `analysedStories.length === 0` — log and exit cleanly
+
+**TypeScript:**
+- Strict mode on — no `any`, no `@ts-ignore`
+- All API route handlers return typed `NextResponse<ApiResponse>`
+- Shared types in `lib/types.ts` — do not duplicate type definitions
+
+**Secrets — never hardcode, always use env vars:**
+```
+ANTHROPIC_API_KEY
+RESEND_API_KEY
+KV_REST_API_URL          # provided by Vercel KV dashboard
+KV_REST_API_TOKEN        # provided by Vercel KV dashboard
+FROM_EMAIL               # verified sender in Resend
+TO_EMAIL                 # recipient address
+```
+
+---
+
+## RSS feeds (source of truth: `lib/config.ts`)
+
+Primary (weight 3 — always include):
+- `https://www.energy-storage.news/feed` — ESS News
+- `https://modoenergy.com/research/rss` — Modo Energy research
+- `https://www.investegate.co.uk/rss.aspx?company=GRID` — Gresham House RNS
+- `https://www.investegate.co.uk/rss.aspx?company=GSF` — Gore Street RNS
+- `https://deltaee.podbean.com/feed.xml` — LCP Delta podcast
+- `https://feeds.acast.com/public/shows/transmission-by-modo-energy` — Modo podcast
+
+Secondary (weight 2):
+- `https://www.solarpowerportal.co.uk/feed`
+- `https://www.pv-magazine.com/feed/`
+- `https://auroraer.com/feed/`
+- `https://pexapark.com/feed/`
+- `https://www.elgarmiddleton.com/feed/`
+- `https://mnacommunity.com/feed/`
+- `https://aercommercial.podbean.com/feed.xml`
+
+---
+
+## What "done" looks like for each phase
+
+**Phase 1 — Foundation:**
+- [ ] `npm run build` passes with zero type errors
+- [ ] `/api/run-brief` fetches feeds, calls Claude, stores results in KV
+- [ ] Dashboard renders stored stories at `app/page.tsx`
+- [ ] Vercel preview deploy works
+
+**Phase 2 — Email:**
+- [ ] `POST /api/send-email` renders React Email template and delivers via Resend
+- [ ] Email only sends when new stories exist
+- [ ] Seen-story dedup working: running twice in a row sends 0 stories second time
+
+**Phase 3 — Polish:**
+- [ ] Cron job live on production (`vercel.json` confirmed)
+- [ ] Revenue chart pulls from KV (updated by pipeline)
+- [ ] Mobile layout tested at 375px width
+- [ ] `README.md` updated with setup instructions
+
+---
+
+## Anti-patterns — do not do these
+
+- Do not use `localStorage` or `sessionStorage` — Vercel Edge environment, use KV
+- Do not call the Claude API from a Client Component — server-side only
+- Do not commit `.env.local` — it's in `.gitignore`
+- Do not use `pages/` router — this project uses App Router exclusively
+- Do not add a database (Postgres, Supabase, etc.) — Vercel KV is sufficient for URL hashes
+- Do not add authentication — the dashboard is public read-only
