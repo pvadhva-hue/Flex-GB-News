@@ -27,9 +27,16 @@ and key players (Gresham House/GRID, Zenobē, Field Energy, Statera, Fidra, etc.
 | Hosting | Vercel | Zero-config deploys, Edge cron support |
 | Email | Resend + React Email | Clean API, React component emails |
 | Scheduler | Vercel Cron Jobs | No separate infra needed |
-| Database | Vercel KV (Redis) | Persist seen-story URLs between cron runs; serverless-safe |
+| Database | Upstash Redis via Vercel Marketplace integration | Persist seen-story URLs between cron runs; serverless-safe |
 | AI analysis | Anthropic Claude API (`claude-sonnet-4-6`) | Scores + summarises RSS articles |
 | RSS parsing | `rss-parser` npm package | Lightweight, works in Node.js Edge runtime |
+
+> **Database note:** Vercel's native "KV" product is retired. Set up storage via
+> **Vercel dashboard → Storage → Marketplace → Upstash for Redis** — this is what
+> "Vercel KV" now means in practice. The integration still injects env vars named
+> `KV_REST_API_URL` / `KV_REST_API_TOKEN` for backward compatibility (that's expected,
+> not a naming mistake). Use the official `@upstash/redis` package in code, not the
+> deprecated `@vercel/kv` wrapper.
 
 ---
 
@@ -51,7 +58,7 @@ bess-brief-web/
 ├── lib/
 │   ├── fetcher.ts            # RSS feed fetching + article extraction
 │   ├── analyser.ts           # Claude API: score, categorise, summarise
-│   ├── dedup.ts              # Vercel KV seen-story deduplication
+│   ├── dedup.ts              # Upstash Redis seen-story deduplication
 │   ├── config.ts             # All feed URLs, player names, keywords
 │   └── types.ts              # Shared TypeScript types
 ├── vercel.json               # Cron job schedule
@@ -77,7 +84,7 @@ Deploy: `git push origin main` → Vercel auto-deploys. Never deploy manually.
 ## Core rules
 
 **Data pipeline:**
-- `dedup.ts` uses Vercel KV to store seen article URL hashes (SHA-256, first 16 chars)
+- `dedup.ts` uses Upstash Redis (via the Vercel Marketplace integration) to store seen article URL hashes (SHA-256, first 16 chars)
 - A story is marked seen ONLY after a successful Resend delivery — never before
 - Cron runs daily at 06:30 UTC; calls `/api/run-brief` then `/api/send-email` in sequence
 - `vercel.json` cron path: `"crons": [{"path": "/api/run-brief", "schedule": "30 6 * * 1-5"}]`
@@ -89,7 +96,7 @@ Deploy: `git push origin main` → Vercel auto-deploys. Never deploy manually.
 - Relevance threshold: articles scoring below 6/10 are dropped silently
 
 **Frontend:**
-- Server Components fetch story data from Vercel KV on every request (no client-side fetch)
+- Server Components fetch story data from Upstash Redis on every request (no client-side fetch)
 - `StoryCard` is the only Client Component (needs `useState` for expand/collapse)
 - Dark theme: background `#0a0c10`, primary accent `#00e5c8` (GB), keep existing palette
 - Do not introduce a component library — Tailwind utility classes only
@@ -110,8 +117,8 @@ Deploy: `git push origin main` → Vercel auto-deploys. Never deploy manually.
 ```
 ANTHROPIC_API_KEY
 RESEND_API_KEY
-KV_REST_API_URL          # provided by Vercel KV dashboard
-KV_REST_API_TOKEN        # provided by Vercel KV dashboard
+KV_REST_API_URL          # provided by the Vercel Marketplace Upstash integration
+KV_REST_API_TOKEN        # provided by the Vercel Marketplace Upstash integration
 FROM_EMAIL               # verified sender in Resend
 TO_EMAIL                 # recipient address
 ```
@@ -143,7 +150,7 @@ Secondary (weight 2):
 
 **Phase 1 — Foundation:**
 - [ ] `npm run build` passes with zero type errors
-- [ ] `/api/run-brief` fetches feeds, calls Claude, stores results in KV
+- [ ] `/api/run-brief` fetches feeds, calls Claude, stores results in Upstash Redis
 - [ ] Dashboard renders stored stories at `app/page.tsx`
 - [ ] Vercel preview deploy works
 
@@ -154,7 +161,7 @@ Secondary (weight 2):
 
 **Phase 3 — Polish:**
 - [ ] Cron job live on production (`vercel.json` confirmed)
-- [ ] Revenue chart pulls from KV (updated by pipeline)
+- [ ] Revenue chart pulls from Upstash Redis (updated by pipeline)
 - [ ] Mobile layout tested at 375px width
 - [ ] `README.md` updated with setup instructions
 
@@ -162,9 +169,9 @@ Secondary (weight 2):
 
 ## Anti-patterns — do not do these
 
-- Do not use `localStorage` or `sessionStorage` — Vercel Edge environment, use KV
+- Do not use `localStorage` or `sessionStorage` — Vercel Edge environment, use Upstash Redis
 - Do not call the Claude API from a Client Component — server-side only
 - Do not commit `.env.local` — it's in `.gitignore`
 - Do not use `pages/` router — this project uses App Router exclusively
-- Do not add a database (Postgres, Supabase, etc.) — Vercel KV is sufficient for URL hashes
+- Do not add a database (Postgres, Supabase, etc.) — Upstash Redis is sufficient for URL hashes
 - Do not add authentication — the dashboard is public read-only
