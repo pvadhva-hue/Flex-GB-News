@@ -26,8 +26,11 @@ export default function BriefDashboard({
   activeTab = "all",
 }: BriefDashboardProps) {
   const isRowTab = activeTab === ROW_TAB_KEY;
+  const currentYear = new Date().getFullYear();
 
-  const relevant = stories.filter((story) => story.score >= RELEVANCE_THRESHOLD);
+  const relevant = stories.filter(
+    (story) => story.score >= RELEVANCE_THRESHOLD && new Date(story.pubDate).getFullYear() === currentYear
+  );
   const filtered = (
     isRowTab
       ? relevant.filter((story) => story.region === "row" && story.score >= HIGH_RELEVANCE_THRESHOLD)
