@@ -14,7 +14,8 @@ frontend, scheduled email delivery.
 
 Owner context: energy storage advisor at Aurora Energy Research, tracking GB +
 European BESS transactions, offtake structures (tolls, floors, financial swaps),
-and key players (Gresham House/GRID, Zenobē, Field Energy, Statera, Fidra, etc.).
+and key players (Gresham House/GRID, Zenobē, Field Energy, Statera, Fidra,
+Foresight Solar, etc.).
 
 ---
 
@@ -131,6 +132,7 @@ Primary (weight 3 — always include):
 - `https://www.energy-storage.news/feed` — ESS News
 - `https://www.investegate.co.uk/rss.aspx?company=GRID` — Gresham House RNS
 - `https://www.investegate.co.uk/rss.aspx?company=GSF` — Gore Street RNS
+- `https://www.investegate.co.uk/rss.aspx?company=FSFL` — Foresight Solar RNS
 - `https://deltaee.podbean.com/feed.xml` — LCP Delta podcast
 
 Secondary (weight 2):
