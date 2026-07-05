@@ -102,6 +102,7 @@ async function analyseBatch(batch: Story[]): Promise<AnalysedStory[]> {
       `[analyser] Claude returned ${raw.length} items for a batch of ${batch.length} stories`
     );
   }
+  console.log(`[analyser] raw scores: ${raw.map((item) => item.score).join(", ")}`);
 
   const analysed: AnalysedStory[] = [];
   let droppedMalformed = 0;
