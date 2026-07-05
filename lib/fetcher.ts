@@ -5,9 +5,28 @@ import type { FeedSource, Story } from "./types";
 
 const parser = new Parser();
 
+const BROWSER_USER_AGENT =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36";
+
+// Some feeds (e.g. RNS announcement feeds) contain raw "&" characters in
+// titles that were never escaped as "&amp;", which trips up strict XML
+// parsing with "Invalid character in entity name". Escape any "&" that isn't
+// already part of a valid entity before handing the XML to the parser.
+function sanitizeXmlEntities(xml: string): string {
+  return xml.replace(/&(?!amp;|lt;|gt;|quot;|apos;|#\d+;|#x[0-9a-fA-F]+;)/g, "&amp;");
+}
+
 async function fetchFeed(feed: FeedSource): Promise<Story[]> {
   try {
-    const parsed = await parser.parseURL(feed.url);
+    const response = await fetch(feed.url, {
+      headers: { "User-Agent": BROWSER_USER_AGENT },
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    const rawXml = await response.text();
+    const parsed = await parser.parseString(sanitizeXmlEntities(rawXml));
+
     return (parsed.items ?? [])
       .filter((item) => Boolean(item.link))
       .map((item) => ({
