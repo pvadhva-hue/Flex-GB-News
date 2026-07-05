@@ -76,7 +76,11 @@ export const PRIORITY_TOPICS: string[] = [
   "grid connection queue reform (e.g. TMO4+, connections reform, queue management)",
 ];
 
-export const RELEVANCE_THRESHOLD = 7;
+// Temporarily lowered from 7 while the analyser's scoring calibration is
+// being tuned back up (see lib/analyser.ts) - recent live runs scored
+// almost nothing above 6 even for genuine BESS news. Raise back to 7 once
+// scores are confirmed to reliably reach the old 6-9 range again.
+export const RELEVANCE_THRESHOLD = 6;
 export const HIGH_RELEVANCE_THRESHOLD = 8;
 export const ANALYSER_BATCH_SIZE = 8;
 export const CLAUDE_MODEL = "claude-sonnet-4-6";

@@ -61,6 +61,13 @@ For each article below:
    - 10: major, market-defining BESS news
    Additionally, always score 8 or higher for articles covering any of these topics, even if from a general news roundup rather than a dedicated article:
 ${PRIORITY_TOPICS.map((topic) => `   - ${topic}`).join("\n")}
+
+   Example scores for calibration:
+   - "Gresham House secures GBP 50m financing for 200MW/400MWh BESS project in Yorkshire" -> 8 (a BESS transaction)
+   - "Ofgem consults on grid connection queue reform for storage assets" -> 7 (BESS-specific policy)
+   - "UK wholesale electricity prices fall amid mild weather" -> 4 (general energy market news, no direct BESS link)
+   - "Government announces new roads funding package" -> 1 (unrelated to energy storage)
+   Do not be conservative: a genuine, on-topic BESS transaction, deal, or policy story should score in the 6-9 range even if it seems routine - that range is for typical BESS news, not just landmark stories.
 2. Categorise it as one of: transaction, offtake, policy, market, technology, other.
 3. Classify its primary geography as "europe" (GB and continental Europe) or "row" (rest of world - Americas, Asia-Pacific, Australia, Middle East, Africa, or global/no specific geography).
 4. Write a one-sentence summary of what happened.
