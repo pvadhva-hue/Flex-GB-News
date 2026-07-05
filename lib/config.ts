@@ -10,7 +10,7 @@ export const PRIMARY_FEEDS: FeedSource[] = [
 ];
 
 export const SECONDARY_FEEDS: FeedSource[] = [
-  { url: "https://www.solarpowerportal.co.uk/feed/", label: "Solar Power Portal", weight: 2 },
+  { url: "https://www.solarpowerportal.co.uk/rss", label: "Solar Power Portal", weight: 2 },
   { url: "https://www.pv-magazine.com/feed/", label: "PV Magazine", weight: 2 },
   { url: "https://auroraer.com/feed/", label: "Aurora Energy Research", weight: 2 },
   { url: "https://pexapark.com/feed/", label: "Pexapark", weight: 2 },

@@ -53,11 +53,14 @@ function buildPrompt(batch: Story[]): string {
   return `You are analysing news articles for an energy storage advisor at Aurora Energy Research who tracks GB and European battery energy storage (BESS) transactions, offtake structures (tolls, floors, financial swaps), and market/policy/technology developments.
 Track these key players: ${TRACKED_PLAYERS.join(", ")}.
 
-Score these topics especially highly (8+) whenever they appear, even if from a general news roundup rather than a dedicated article:
-${PRIORITY_TOPICS.map((topic) => `- ${topic}`).join("\n")}
-
 For each article below:
-1. Score its relevance to BESS on a 0-10 scale.
+1. Score its relevance to BESS on a 0-10 scale, calibrated like this:
+   - 0-2: not about energy storage at all
+   - 3-5: general energy/power market news with no direct connection to battery storage
+   - 6-9: directly about BESS - a transaction, offtake deal, market update, technology development, or policy affecting battery storage. Most genuine BESS news belongs in this range.
+   - 10: major, market-defining BESS news
+   Additionally, always score 8 or higher for articles covering any of these topics, even if from a general news roundup rather than a dedicated article:
+${PRIORITY_TOPICS.map((topic) => `   - ${topic}`).join("\n")}
 2. Categorise it as one of: transaction, offtake, policy, market, technology, other.
 3. Classify its primary geography as "europe" (GB and continental Europe) or "row" (rest of world - Americas, Asia-Pacific, Australia, Middle East, Africa, or global/no specific geography).
 4. Write a one-sentence summary of what happened.
