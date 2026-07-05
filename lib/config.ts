@@ -2,9 +2,6 @@ import type { FeedSource } from "./types";
 
 export const PRIMARY_FEEDS: FeedSource[] = [
   { url: "https://www.energy-storage.news/feed", label: "ESS News", weight: 3 },
-  { url: "https://www.investegate.co.uk/rss.aspx?company=GRID", label: "Gresham House RNS", weight: 3 },
-  { url: "https://www.investegate.co.uk/rss.aspx?company=GSF", label: "Gore Street RNS", weight: 3 },
-  { url: "https://www.investegate.co.uk/rss.aspx?company=FSFL", label: "Foresight Solar RNS", weight: 3 },
   { url: "https://deltaee.podbean.com/feed.xml", label: "LCP Delta podcast", weight: 3 },
 ];
 

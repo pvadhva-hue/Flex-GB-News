@@ -130,9 +130,6 @@ TO_EMAIL                 # recipient address
 
 Primary (weight 3 — always include):
 - `https://www.energy-storage.news/feed` — ESS News
-- `https://www.investegate.co.uk/rss.aspx?company=GRID` — Gresham House RNS
-- `https://www.investegate.co.uk/rss.aspx?company=GSF` — Gore Street RNS
-- `https://www.investegate.co.uk/rss.aspx?company=FSFL` — Foresight Solar RNS
 - `https://deltaee.podbean.com/feed.xml` — LCP Delta podcast
 
 Secondary (weight 2):
@@ -152,7 +149,12 @@ fetching): Modo Energy research, Modo podcast, Solar Power Portal, Aurora
 Energy Research, M&A Community. Reuters was requested but skipped -
 reuters.com/business/energy/ is a regular webpage, not an RSS feed, and
 Reuters discontinued their public RSS feeds years ago; no working feed
-URL was found.
+URL was found. The three Investegate RNS feeds (Gresham House `GRID`,
+Gore Street `GSF`, Foresight Solar `FSFL`) were removed after repeatedly
+failing strict XML parsing in production ("Attribute without value" /
+"Feed not recognized as RSS 1 or 2") - a regex-based fallback parser was
+added in `lib/fetcher.ts` and does recover from the error, but the feeds
+were still dropped for now per owner decision.
 
 ---
 
