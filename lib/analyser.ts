@@ -97,11 +97,27 @@ async function analyseBatch(batch: Story[]): Promise<AnalysedStory[]> {
     return [];
   }
 
+  if (raw.length !== batch.length) {
+    console.warn(
+      `[analyser] Claude returned ${raw.length} items for a batch of ${batch.length} stories`
+    );
+  }
+
   const analysed: AnalysedStory[] = [];
+  let droppedMalformed = 0;
+  let droppedLowScore = 0;
+
   for (const item of raw) {
     const story = batch[item.index];
-    if (!story || typeof item.score !== "number") continue;
-    if (item.score < RELEVANCE_THRESHOLD) continue;
+    const score = Number(item.score);
+    if (!story || Number.isNaN(score)) {
+      droppedMalformed++;
+      continue;
+    }
+    if (score < RELEVANCE_THRESHOLD) {
+      droppedLowScore++;
+      continue;
+    }
 
     const category: StoryCategory = VALID_CATEGORIES.includes(item.category as StoryCategory)
       ? (item.category as StoryCategory)
@@ -113,18 +129,20 @@ async function analyseBatch(batch: Story[]): Promise<AnalysedStory[]> {
     analysed.push({
       ...story,
       hash: hashStoryUrl(story.link),
-      score: item.score,
+      score,
       category,
       region,
       summary: item.summary ?? "",
       players: Array.isArray(item.players) ? item.players : [],
       auroraRelevance:
-        item.score >= HIGH_RELEVANCE_THRESHOLD && item.auroraRelevance
-          ? item.auroraRelevance
-          : undefined,
+        score >= HIGH_RELEVANCE_THRESHOLD && item.auroraRelevance ? item.auroraRelevance : undefined,
       dataCentre: item.dataCentre === true,
     });
   }
+
+  console.log(
+    `[analyser] batch of ${batch.length}: ${analysed.length} kept, ${droppedLowScore} below threshold, ${droppedMalformed} malformed`
+  );
 
   return analysed;
 }
