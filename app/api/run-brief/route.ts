@@ -7,20 +7,22 @@ import { addStories } from "@/lib/store";
 import type { ApiResponse, RunBriefResult } from "@/lib/types";
 
 // vercel.json schedules this route via two daily UTC cron entries (one that
-// lands at 06:30 UK time during BST, one during GMT) since Vercel Cron has no
-// timezone/DST awareness. Whichever entry doesn't correspond to genuine 06:30
+// lands at 6am UK time during BST, one during GMT) since Vercel Cron has no
+// timezone/DST awareness. Whichever entry doesn't correspond to genuine 6am
 // UK local time on a given day is a no-op via this guard, so the pipeline
-// only actually runs once a day regardless of the season.
-function isSixThirtyUkTime(): boolean {
+// only actually runs once a day regardless of the season. The two schedules
+// are a full hour apart (05:30 and 06:30 UTC), so matching on the hour alone
+// - rather than requiring an exact minute - is deliberate: cron triggers are
+// not guaranteed to fire on the exact minute, and an exact-minute match would
+// silently skip the entire day's run if a trigger landed even slightly late.
+function isSixAmUkTime(): boolean {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/London",
     hour: "numeric",
-    minute: "numeric",
     hour12: false,
   }).formatToParts(new Date());
   const hour = Number(parts.find((part) => part.type === "hour")?.value);
-  const minute = Number(parts.find((part) => part.type === "minute")?.value);
-  return hour === 6 && minute === 30;
+  return hour === 6;
 }
 
 async function runBrief(): Promise<NextResponse<ApiResponse<RunBriefResult>>> {
@@ -59,9 +61,9 @@ async function runBrief(): Promise<NextResponse<ApiResponse<RunBriefResult>>> {
 }
 
 // Vercel Cron Jobs trigger via GET - only run the pipeline if it's genuinely
-// 06:30 UK time right now (see isSixThirtyUkTime above).
+// the 6am UK hour right now (see isSixAmUkTime above).
 export async function GET(): Promise<NextResponse<ApiResponse<RunBriefResult>>> {
-  if (!isSixThirtyUkTime()) {
+  if (!isSixAmUkTime()) {
     return NextResponse.json({
       success: true,
       data: { fetched: 0, newStories: 0, analysedStories: [], skipped: true },
