@@ -2,24 +2,18 @@ import type { FeedSource } from "./types";
 
 export const PRIMARY_FEEDS: FeedSource[] = [
   { url: "https://www.energy-storage.news/feed", label: "ESS News", weight: 3 },
-  { url: "https://modoenergy.com/research/rss", label: "Modo Energy research", weight: 3 },
   { url: "https://www.investegate.co.uk/rss.aspx?company=GRID", label: "Gresham House RNS", weight: 3 },
   { url: "https://www.investegate.co.uk/rss.aspx?company=GSF", label: "Gore Street RNS", weight: 3 },
   { url: "https://deltaee.podbean.com/feed.xml", label: "LCP Delta podcast", weight: 3 },
-  { url: "https://feeds.acast.com/public/shows/transmission-by-modo-energy", label: "Modo podcast", weight: 3 },
 ];
 
 export const SECONDARY_FEEDS: FeedSource[] = [
-  { url: "https://www.solarpowerportal.co.uk/rss", label: "Solar Power Portal", weight: 2 },
   { url: "https://www.pv-magazine.com/feed/", label: "PV Magazine", weight: 2 },
-  { url: "https://auroraer.com/feed/", label: "Aurora Energy Research", weight: 2 },
   { url: "https://pexapark.com/feed/", label: "Pexapark", weight: 2 },
   { url: "https://www.elgarmiddleton.com/feed/", label: "Elgar Middleton", weight: 2 },
-  { url: "https://mnacommunity.com/feed/", label: "M&A Community", weight: 2 },
   { url: "https://aercommercial.podbean.com/feed.xml", label: "AER Commercial podcast", weight: 2 },
   { url: "https://www.theguardian.com/environment/energy/rss", label: "The Guardian Energy", weight: 2 },
   { url: "https://www.ft.com/companies/energy?format=rss", label: "Financial Times Energy", weight: 2 },
-  { url: "https://www.energylivenews.com/feed", label: "Energy Live News", weight: 2 },
 ];
 
 export const ALL_FEEDS: FeedSource[] = [...PRIMARY_FEEDS, ...SECONDARY_FEEDS];

@@ -129,26 +129,24 @@ TO_EMAIL                 # recipient address
 
 Primary (weight 3 — always include):
 - `https://www.energy-storage.news/feed` — ESS News
-- `https://modoenergy.com/research/rss` — Modo Energy research
 - `https://www.investegate.co.uk/rss.aspx?company=GRID` — Gresham House RNS
 - `https://www.investegate.co.uk/rss.aspx?company=GSF` — Gore Street RNS
 - `https://deltaee.podbean.com/feed.xml` — LCP Delta podcast
-- `https://feeds.acast.com/public/shows/transmission-by-modo-energy` — Modo podcast
 
 Secondary (weight 2):
-- `https://www.solarpowerportal.co.uk/feed`
 - `https://www.pv-magazine.com/feed/`
-- `https://auroraer.com/feed/`
 - `https://pexapark.com/feed/`
 - `https://www.elgarmiddleton.com/feed/`
-- `https://mnacommunity.com/feed/`
 - `https://aercommercial.podbean.com/feed.xml`
 - `https://www.theguardian.com/environment/energy/rss` — The Guardian Energy
 - `https://www.ft.com/companies/energy?format=rss` — Financial Times Energy
-- `https://www.energylivenews.com/feed` — Energy Live News
 
 Also scraped directly (no RSS available): Ofgem news-and-insight, see
 `lib/ofgemScraper.ts`.
+
+Removed (no working RSS feed could be found, or the site blocks automated
+fetching): Modo Energy research, Modo podcast, Solar Power Portal, Aurora
+Energy Research, M&A Community, Energy Live News.
 
 ---
 
