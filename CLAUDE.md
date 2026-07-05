@@ -140,13 +140,17 @@ Secondary (weight 2):
 - `https://aercommercial.podbean.com/feed.xml`
 - `https://www.theguardian.com/environment/energy/rss` — The Guardian Energy
 - `https://www.ft.com/companies/energy?format=rss` — Financial Times Energy
+- `https://www.energylivenews.com/feed/` — Energy Live News
 
 Also scraped directly (no RSS available): Ofgem news-and-insight, see
 `lib/ofgemScraper.ts`.
 
 Removed (no working RSS feed could be found, or the site blocks automated
 fetching): Modo Energy research, Modo podcast, Solar Power Portal, Aurora
-Energy Research, M&A Community, Energy Live News.
+Energy Research, M&A Community. Reuters was requested but skipped -
+reuters.com/business/energy/ is a regular webpage, not an RSS feed, and
+Reuters discontinued their public RSS feeds years ago; no working feed
+URL was found.
 
 ---
 
