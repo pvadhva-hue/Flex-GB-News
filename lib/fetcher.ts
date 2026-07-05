@@ -24,8 +24,8 @@ async function fetchFeed(feed: FeedSource): Promise<Story[]> {
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
-    const rawXml = await response.text();
-    const parsed = await parser.parseString(sanitizeXmlEntities(rawXml));
+    const sanitized = sanitizeXmlEntities(await response.text());
+    const parsed = await parser.parseString(sanitized);
 
     return (parsed.items ?? [])
       .filter((item) => Boolean(item.link))
