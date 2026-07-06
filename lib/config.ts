@@ -70,7 +70,7 @@ export const PRIORITY_TOPICS: string[] = [
   "grid connection queue reform (e.g. TMO4+, connections reform, queue management)",
 ];
 
-export const RELEVANCE_THRESHOLD = 7;
+export const RELEVANCE_THRESHOLD = 6;
 export const HIGH_RELEVANCE_THRESHOLD = 8;
 export const ANALYSER_BATCH_SIZE = 8;
 export const CLAUDE_MODEL = "claude-sonnet-4-6";
