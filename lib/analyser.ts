@@ -161,3 +161,71 @@ export async function analyseStories(stories: Story[]): Promise<AnalysedStory[]>
   const results = await Promise.all(batches.map(analyseBatch));
   return results.flat();
 }
+
+interface RawAuroraRelevance {
+  index: number;
+  auroraRelevance: string;
+}
+
+function buildAuroraRelevancePrompt(batch: AnalysedStory[]): string {
+  const articles = batch
+    .map(
+      (story, index) =>
+        `[${index}] Title: ${story.title}\nSummary: ${story.summary}\nCategory: ${story.category}\nScore: ${story.score}/10`
+    )
+    .join("\n\n");
+
+  return `You are writing "why this matters" notes for an energy storage advisor at Aurora Energy Research who tracks GB and European battery energy storage (BESS) transactions, offtake structures (tolls, floors, financial swaps), and market/policy/technology developments.
+
+For each article below, write a one-to-two sentence "auroraRelevance" explaining specifically why this matters to an Aurora Energy Research advisor tracking GB/European BESS transactions and offtake structures (e.g. precedent for deal structuring, pricing signal, regulatory read-across, competitor/client activity).
+
+Articles:
+${articles}
+
+Respond with ONLY a JSON array (no markdown, no prose) where each element has this exact shape:
+{"index": number, "auroraRelevance": string}`;
+}
+
+async function backfillAuroraRelevanceBatch(batch: AnalysedStory[]): Promise<AnalysedStory[]> {
+  let raw: RawAuroraRelevance[];
+
+  try {
+    const response = await anthropic.messages.create({
+      model: CLAUDE_MODEL,
+      max_tokens: 1024,
+      messages: [{ role: "user", content: buildAuroraRelevancePrompt(batch) }],
+    });
+
+    const textBlock = response.content.find((block) => block.type === "text");
+    if (!textBlock || textBlock.type !== "text") {
+      throw new Error("No text content block in Claude response");
+    }
+
+    const parsed: unknown = JSON.parse(textBlock.text.trim());
+    if (!Array.isArray(parsed)) {
+      throw new Error("Expected a JSON array from Claude");
+    }
+    raw = parsed as RawAuroraRelevance[];
+  } catch (error) {
+    console.error("[analyser] Failed to backfill auroraRelevance for batch, skipping:", error);
+    return batch;
+  }
+
+  const byIndex = new Map(raw.map((item) => [item.index, item.auroraRelevance]));
+  return batch.map((story, index) => {
+    const relevance = byIndex.get(index);
+    return relevance ? { ...story, auroraRelevance: relevance } : story;
+  });
+}
+
+// Patches the "auroraRelevance" field onto already-analysed stories without
+// touching score/category/summary/players/dataCentre - used to backfill
+// stories that were stored before auroraRelevance was generated for every
+// article rather than only the highest-scoring ones.
+export async function backfillAuroraRelevance(
+  stories: AnalysedStory[]
+): Promise<AnalysedStory[]> {
+  const batches = chunk(stories, ANALYSER_BATCH_SIZE);
+  const results = await Promise.all(batches.map(backfillAuroraRelevanceBatch));
+  return results.flat();
+}
